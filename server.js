@@ -5,7 +5,7 @@ let handleRequest = (request, response) => {
     response.writeHead(200, {
         'Content-Type': 'text/html'
     });
-    fs.readFile('./viewer.html', null, function (error, data) {
+    fs.readFile('./www/index.html', null, function (error, data) {
         if (error) {
             response.writeHead(404);
             respone.write('File not found!');
@@ -16,4 +16,5 @@ let handleRequest = (request, response) => {
     });
 };
 
+console.log('Server listening on port http://localhost:8000');
 http.createServer(handleRequest).listen(8000);
