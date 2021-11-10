@@ -1,3 +1,12 @@
+<!--
+ Title: DTM(Digital Twin base on Map
+ Name: Taewook Kang
+ Email: laputa99999@gmail.com
+ Created date: 2021.11.10
+ Purpose: Test connection with DTB
+ Tools: node, mongodb, axios, javascript
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +17,37 @@
   <link href="style.css" rel="stylesheet">  
 </head>
 <body>
-  <div id="cesiumContainer"></div>
+  <header>
+  	Digital Twin Map
+  </header>
+  <section>
+    <div id="cesiumContainer"></div>
+  </section>
+  <section>
+    <label>Date</label>
+    <input id="beginDate" type="date" value="2021-10-01">
+    <input id="endDate" type="date" value="2021-11-11">  
+    <label>Area</label>
+    <input type="text" id="area" value="all"></input>
+    <label>Sensor</label>
+    <select id="sensor" class="selectpicker">
+        <option value="all">all</option>
+        <option value="temp">temperature</option>
+        <option value="humi">humidity</option>
+        <option value="light">light</option>
+    </select>                     
+    <label>Max data</label>
+    <select id="maxCount" class="selectpicker">
+        <option value="all">all</option>
+        <option value="20">20</option>
+        <option value="50" selected="selected">50</option>
+        <option value="100">100</option>
+        <option value="200">200</option>
+    </select> 
+  </section>  
+  <section>
+  	<p id="outputData">output data<p/>
+  </section>
   <script>
     // Your access token can be found at: https://cesium.com/ion/tokens.
     // Replace `your_access_token` with your Cesium ion access token.
@@ -106,9 +145,54 @@
 	    if (previousPickedEntity instanceof Cesium.Cesium3DTileFeature) {
 	        var propertyNames = previousPickedEntity.getPropertyNames();
 
-	       	console.log('Properties = ' + propertyNames);
+	       	renderSensorData();
+   	        /* var outputData = document.getElementById('outputData');
+
+   	        var data = "";
+	        var length = propertyNames.length;
+	        for (var i = 0; i < length; ++i) {
+	            var propertyName = propertyNames[i];
+	            data = data + propertyName + ': ' + previousPickedEntity.getProperty(propertyName) + '</br>';
+	        }   	        
+   	        outputData.innerHTML = data; */
 	    }
 	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+
+
+    function renderSensorData() {
+        var beginDate = document.getElementById('beginDate').value;
+        var endDate = document.getElementById('endDate').value;
+        var area = document.getElementById('area').value;
+        var sensor = document.getElementById('sensor').value;
+        var maxCount = document.getElementById('maxCount').value; 
+
+        // Create a new ajax requst
+        var oReq = new XMLHttpRequest();
+
+        oReq.onreadystatechange = function ()
+        {
+            if (oReq.readyState == 4 && oReq.status == 200)
+            {
+                // console.log(oReq.responseText);
+                outputData.innerHTML = oReq.responseText;
+            }
+        };
+
+        // Create the connection to our API
+        var APIstring = "http://localhost:4000/summary?";
+        //APIstring = APIstring + "beginDate=" + beginDate + "&";
+        //APIstring = APIstring + "endDate=" + endDate + "&";
+        if(maxCount != "all")
+            APIstring = APIstring + "limit=" + parseInt(maxCount) + "&";
+        if(sensor != "all")
+            APIstring = APIstring + "sensor=" + sensor + "&";
+        if(area != "all")
+            APIstring = APIstring + "area=" + area + "&";
+
+        oReq.open("GET", APIstring);  // ?limit=10&date=2021
+        oReq.setRequestHeader('Content-Type', 'application/json');
+        oReq.send();    // Fire the request
+    }	
 
   </script>
  </div>
