@@ -78,22 +78,37 @@
 
 	var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 	var previousPickedEntity = undefined;
+
 	handler.setInputAction(function(movement) {
 	    var pickedPrimitive = viewer.scene.pick(movement.endPosition);
-	    var pickedEntity = (Cesium.defined(pickedPrimitive)) ? pickedPrimitive.id : undefined;
-	    // Unhighlight the previously picked entity
-	    if (Cesium.defined(previousPickedEntity)) {
-	        previousPickedEntity.scale = 1.0;
-	        previousPickedEntity.color = Cesium.Color.WHITE;
+
+	    console.log('point = ' + pickedPrimitive);
+
+	    if (pickedPrimitive instanceof Cesium.Cesium3DTileFeature) {
+	    	previousPickedEntity = pickedPrimitive;
+
+	        var propertyNames = pickedPrimitive.getPropertyNames();
+	        var length = propertyNames.length;
+	        for (var i = 0; i < length; ++i) {
+	            var propertyName = propertyNames[i];
+	            console.log(propertyName + ': ' + pickedPrimitive.getProperty(propertyName));
+	        }
 	    }
-	    // Highlight the currently picked entity
-	    if (Cesium.defined(pickedEntity)) {
-	        pickedEntity.scale = 2.0;
-	        pickedEntity.color = Cesium.Color.ORANGERED;
-	        previousPickedEntity = pickedEntity;
-	    }
+
 	}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
+
+	var handlerContext = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+	handlerContext.setInputAction(function(movement) {
+	    console.log('context = ' + previousPickedEntity);
+
+	    if (previousPickedEntity instanceof Cesium.Cesium3DTileFeature) {
+	        var propertyNames = previousPickedEntity.getPropertyNames();
+
+	       	console.log('Properties = ' + propertyNames);
+	    }
+	}, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
 
   </script>
  </div>
